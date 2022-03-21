@@ -1,0 +1,43 @@
+.game-content-white {
+    background-color: white;
+}
+
+.game-info-container {
+    position: relative;
+    margin: 50px auto;
+    width: 800px;
+    height: 50px;
+}
+
+
+#draw-tools {
+    position: absolute;
+}
+
+#countDownTimer {
+    position: absolute;
+    bottom: 5px;
+    right: 10px;
+    color: white;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 30px;
+    filter:blur(0.6px);
+}
+
+#sampleDraw {
+    width: 200px;
+    border-radius: 10px;
+    margin-left: 40px;
+    background-color: white;
+    padding: 10px;
+}
+
+.game-content-container {
+    text-align: center;
+} 
+
+.inline {
+    display: inline-block;
+    margin: 50px auto;
+    vertical-align: top;
+}

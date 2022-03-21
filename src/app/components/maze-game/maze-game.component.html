@@ -1,0 +1,9 @@
+<div class="game-info-container">
+    <canvas id="infoBar" #gameInfoRef></canvas>
+    <countdown #cd id="countDownTimer" [config]="countdownConfig" (event)="finishedTimer($event)"></countdown>
+</div>
+
+<div class="game-content-container">
+    <canvas id="canvasId" #gameContentRef></canvas>
+    <countdown #cd *ngIf="answeringQuestion" id="questionTimer" [config]="questionTimerConfig" (event)="finishedQuestion($event)"></countdown>
+</div>
