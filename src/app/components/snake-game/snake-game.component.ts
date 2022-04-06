@@ -10,6 +10,7 @@ import { CountdownConfig } from 'ngx-countdown';
 export class SnakeGameComponent  implements AfterViewInit {
   @ViewChild('gameContentRef', {static: false}) gameContentRef: any;
   @ViewChild('gameInfoRef', {static: false}) gameInfoRef: any;
+  @ViewChild('cd', {static: false}) cd: any;
 
   private button1 = {x: 0, y: 0, width: 350, heigth: 100};
 
@@ -31,6 +32,7 @@ export class SnakeGameComponent  implements AfterViewInit {
   private enemies: Array<any>  = [];
 
   private gameOver = false;
+  private gamePaused = false;
   private gameLost = false;
   public blackBackground = false;
 
@@ -43,12 +45,9 @@ export class SnakeGameComponent  implements AfterViewInit {
   private dx = 25;
   // Vertical velocity
   private dy = 0;
-  @Output() mazeGame = new EventEmitter();
 
   @HostListener('document:click', ['$event']) onClick = (e: any): void => {
-    if(this.isInside(e, this.button1) && this.gameOver) {
-      this.mazeGame.emit();
-    } else if (this.isInside(e, this.button1) && this.gameLost) {
+    if(this.isInside(e, this.button1) && (this.gameLost)) {
       this.playAgain();
     }
   }
@@ -56,6 +55,11 @@ export class SnakeGameComponent  implements AfterViewInit {
   @HostListener('document:keydown', ['$event']) onKeyDown = (e: any): void => {
     this.change_direction(e);
     if(e.keyCode === 32) this.blackBackground = true; 
+    if(e.keyCode === 80) {
+      this.gamePaused = !this.gamePaused;
+      (this.cd.status === 1) ? this.cd.resume() : this.cd.pause();
+      this.main();
+    }
   }
 
   public finishedTimer($event: any) {
@@ -144,7 +148,7 @@ export class SnakeGameComponent  implements AfterViewInit {
           that.move_snake();
           that.drawSnake();
           // Repeat
-          if(!that.gameLost) that.main();
+          if(!that.gameLost && !that.gamePaused) that.main();
       }, 100);
   } 
 
@@ -295,7 +299,6 @@ export class SnakeGameComponent  implements AfterViewInit {
   private drawGameOverScreen(): void {
     this.clearGameContent();
     this.drawTitleMenuScreen('40px', 'Game over');
-    this.drawButtonMenuScreen('40px', this.button1, 'Back to first game', this.gameContentEl!.height/2.75, this.gameContentEl!.height/2.07, 100);
   }
 
   private drawLostGame(): void {

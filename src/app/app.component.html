@@ -1,4 +1,9 @@
-<maze-game *ngIf="currentGame.mazeGame" (spaceInvadersGame)="showSpaceInvadersGame()"></maze-game>
-<space-invaders-game *ngIf="currentGame.spaceInvadersGame" (beakoutGame)="showBreakoutGame()"></space-invaders-game>
-<breakout-game *ngIf="currentGame.breakoutGame" (snakeGame)="showSnakeGame()"></breakout-game>
-<snake-game *ngIf="currentGame.snakeGame" (mazeGame)="showMazeGame()"></snake-game>
+<nav>
+    <ul>
+        <li [routerLink]="['maze-game']" routerLinkActive="active-link">Game 1</li>
+        <li [routerLink]="['space-invaders-game']" routerLinkActive="active-link">Game 2</li>
+        <li [routerLink]="['breakout-game']" routerLinkActive="active-link">Game 3</li>
+        <li [routerLink]="['snake-game']" routerLinkActive="active-link">Game 4</li>
+    </ul>
+</nav>
+<router-outlet></router-outlet>

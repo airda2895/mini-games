@@ -6,32 +6,4 @@ import { Component } from '@angular/core';
 })
 export class AppComponent {
   title = 'mini-games';
-  currentGame: any;
-
-  constructor() {
-    this.currentGame = {
-      mazeGame: false,
-      spaceInvadersGame: false,
-      breakoutGame: false,
-      snakeGame: true,
-    }
-  }
-  showSpaceInvadersGame() {
-    this.currentGame.mazeGame = false;
-    this.currentGame.spaceInvadersGame = true;
-  }
-
-  showBreakoutGame() {
-    this.currentGame.spaceInvadersGame = false;
-    this.currentGame.breakoutGame = true;
-  }
-  
-  showSnakeGame() {
-    this.currentGame.breakoutGame = false;
-    this.currentGame.snakeGame = true;
-  }
-  showMazeGame() {
-    this.currentGame.snakeGame = false;
-    this.currentGame.mazeGame = true;
-  }
 }

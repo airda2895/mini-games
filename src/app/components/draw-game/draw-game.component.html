@@ -1,8 +1,0 @@
-<div class="game-info-container">
-    <canvas id="infoBar" #gameInfoRef></canvas>
-    <countdown #cd id="countDownTimer" [config]="countdownConfig" (event)="finishedTimer($event)"></countdown>
-</div>
-<div class="game-content-container">
-    <canvas [ngClass]="!finishedGame ? 'game-content-white' : ''" class="inline" id="gameContent" #gameContentRef></canvas>
-    <img *ngIf="!finishedGame" class="inline" id="sampleDraw" #diceRef src="{{sampleDraw}}"/>
-</div>

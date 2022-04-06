@@ -18,10 +18,9 @@ import { CountdownConfig } from 'ngx-countdown';
 export class SpaceInvadersGameComponent  implements AfterViewInit {
   @ViewChild('gameContentRef', {static: false}) gameContentRef: any;
   @ViewChild('gameInfoRef', {static: false}) gameInfoRef: any;
-  @Output() beakoutGame = new EventEmitter();
+  @ViewChild('cd', {static: false}) cd: any;
 
   private button1 = {x: 0, y: 0, width: 215, heigth: 100};
-  private button2 = {x: 0, y: 0, width: 215, heigth: 100};
 
   public countdownConfig: CountdownConfig = {leftTime: 360, format: 'mm:ss', demand: false};
 
@@ -81,6 +80,7 @@ export class SpaceInvadersGameComponent  implements AfterViewInit {
   private gameLost = false;
   private wonGame = false;
   private gameOver = false;
+  private gamePaused = false;
   private finalBoss = new FinalBoss();
   private enemy = new Enemy();
   private player = new Player();
@@ -94,13 +94,29 @@ export class SpaceInvadersGameComponent  implements AfterViewInit {
   
 
   @HostListener('document:click', ['$event']) onClick = (e: any): void => {
-    if(this.isInside(e, this.button1) && this.gameLost) {
-      this.playAgain();
-    } else if (this.isInside(e, this.button1) && (this.wonGame || this.gameOver)) {
-      this.beakoutGame.emit();
-    } else if(this.isInside(e, this.button2) && this.wonGame) {
+    if(this.isInside(e, this.button1) && (this.gameLost || this.wonGame)) {
       this.playAgain();
     }
+  }
+
+  @HostListener('document:keydown', ['$event']) onKeyDown = (e: any) => {
+    this.gameStruct.keyboard[e.keyCode] = true;
+
+    if(e.keyCode === 80) {
+      this.gamePaused = !this.gamePaused;
+      if(this.cd.status === 1) {
+        this.cd.resume();
+        this.animate();
+      } else { 
+        this.cd.pause();
+        cancelAnimationFrame(this.currentAnimation);
+      }
+    }
+  }
+
+
+  @HostListener('document:keyup', ['$event']) onKeyUp = (e: any) => {
+    this.gameStruct.keyboard[e.keyCode] = false;
   }
 
   public finishedTimer($event: any) {
@@ -159,15 +175,6 @@ export class SpaceInvadersGameComponent  implements AfterViewInit {
     }
   }
 
-  @HostListener('document:keydown', ['$event']) onKeyDown = (e: any) => {
-    this.gameStruct.keyboard[e.keyCode] = true;
-  }
-
-
-  @HostListener('document:keyup', ['$event']) onKeyUp = (e: any) => {
-    this.gameStruct.keyboard[e.keyCode] = false;
-  }
-
   animate(): void {
     this.drawInfoText();
     this.drawScenario();
@@ -179,7 +186,6 @@ export class SpaceInvadersGameComponent  implements AfterViewInit {
   }
 
   checkScore(): void {
-    
     if(this.player.life < 0) {
       this.player.life = 0;
       this.gameLost = true;
@@ -210,14 +216,12 @@ export class SpaceInvadersGameComponent  implements AfterViewInit {
   private drawGameOverScreen(): void {
     this.clearGameContent();
     this.drawTitleMenuScreen('40px', 'Game over');
-    this.drawButtonMenuScreen('40px', this.button1, 'Next game', this.gameStruct.gameContentEl!.height/2.65, this.gameStruct.gameContentEl!.height/2, 100);
   }
   
   drawGameWonScreen(): void {
     this.clearGameContent();
     this.drawTitleMenuScreen('60px', 'You won!');
-    this.drawButtonMenuScreen('40px', this.button1, 'Next game', this.gameStruct.gameContentEl!.height/2.65, this.gameStruct.gameContentEl!.height/2, 100);
-    this.drawButtonMenuScreen('40px', this.button2, 'Play again', this.gameStruct.gameContentEl!.height/1.4, this.gameStruct.gameContentEl!.height/1.2, 100);
+    this.drawButtonMenuScreen('40px', this.button1, 'Play again', this.gameStruct.gameContentEl!.height/2.65, this.gameStruct.gameContentEl!.height/2, 100);
   }
 
   drawTitleMenuScreen(fontSize: string, text: string): void {

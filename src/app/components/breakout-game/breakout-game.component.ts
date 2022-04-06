@@ -12,8 +12,7 @@ export class BreakoutGameComponent implements AfterViewInit {
   // GAME VARIABLES AND CONSTANTS
   @ViewChild('gameContentRef', {static: false}) gameContentRef: any;
   @ViewChild('gameInfoRef', {static: false}) gameInfoRef: any;
-
-  @Output() snakeGame = new EventEmitter();
+  @ViewChild('cd', {static: false}) cd: any;
 
   private gameContentCX!: CanvasRenderingContext2D;
   private gameContent: Board | undefined;
@@ -33,6 +32,7 @@ export class BreakoutGameComponent implements AfterViewInit {
   private LEVEL = 0;
   private MAX_LEVEL = 3;
   private GAME_OVER = false;
+  private GAME_PAUSED = false;
   private LOST_GAME = false;
   private WON_GAME = false;
   private leftArrow = false;
@@ -96,13 +96,7 @@ export class BreakoutGameComponent implements AfterViewInit {
   }
 
   @HostListener('document:click', ['$event']) onClick = (e: any): void => {
-    if(this.isInside(e, this.button1) && this.GAME_OVER) {
-      this.snakeGame.emit();
-    } else if (this.isInside(e, this.button1) && this.LOST_GAME) {
-      this.playAgain();
-    } else if (this.isInside(e, this.button1) && this.WON_GAME) {
-      this.snakeGame.emit();
-    } else if (this.isInside(e, this.button2) && this.WON_GAME) {
+    if (this.isInside(e, this.button1) && (this.LOST_GAME || this.WON_GAME)) {
       this.playAgain();
     }
   }
@@ -125,10 +119,16 @@ export class BreakoutGameComponent implements AfterViewInit {
     } else if(e.keyCode == 39) {
       this.rightArrow = false;
     }
+
+    if(e.keyCode === 80) {
+      this.GAME_PAUSED = !this.GAME_PAUSED;
+      (this.cd.status === 1) ? this.cd.resume() : this.cd.pause();
+      this.loop();
+    }
   }
 
   private playAgain(): void {
-    
+    if(Math.floor(Math.random() * 100) < 30) alert('');
     if(this.WON_GAME) {
       this.WON_GAME = false;
       this.brick.row = 1;
@@ -169,12 +169,14 @@ export class BreakoutGameComponent implements AfterViewInit {
     this.draw();
     this.update();
     
-    if(!this.LOST_GAME && !this.GAME_OVER && !this.WON_GAME && this.LIFE > 0) {
+    if(!this.LOST_GAME && !this.GAME_OVER && !this.WON_GAME && !this.GAME_PAUSED && this.LIFE > 0) {
       this.frame = requestAnimationFrame(() => {this.loop()});
-    } else if(!this.WON_GAME) {
+    } else if(!this.WON_GAME && !this.GAME_PAUSED) {
       this.LOST_GAME = true;
       cancelAnimationFrame(this.frame);
       this.drawGameLostScreen();
+    } else if (this.GAME_PAUSED) {
+      cancelAnimationFrame(this.frame);
     } else {
       cancelAnimationFrame(this.frame);
       this.drawGameWonScreen();
@@ -361,14 +363,12 @@ export class BreakoutGameComponent implements AfterViewInit {
   drawGameOverScreen(): void {
     this.clearGameContent();
     this.drawTitleMenuScreen('40px', 'Game over!');
-    this.drawButtonMenuScreen('40px', this.button1, 'Next game', this.gameContentEl!.height/2.65, this.gameContentEl!.height/2, 100, this.gameContentEl!.width/4.3);
   }
 
   drawGameWonScreen(): void {
     this.clearGameContent();
     this.drawTitleMenuScreen('40px', 'You won!');
-    this.drawButtonMenuScreen('40px', this.button1, 'Next game', this.gameContentEl!.height/2.65, this.gameContentEl!.height/2, 100, this.gameContentEl!.width/4.3);
-    this.drawButtonMenuScreen('40px', this.button2, 'Play again', this.gameContentEl!.height/1.5, this.gameContentEl!.height/1.27, 100, this.gameContentEl!.width/4.3);
+    this.drawButtonMenuScreen('40px', this.button1, 'Play again', this.gameContentEl!.height/2.65, this.gameContentEl!.height/2, 100, this.gameContentEl!.width/4.3);
   }
 
   drawGameLostScreen(): void {

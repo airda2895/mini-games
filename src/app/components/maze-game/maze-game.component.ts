@@ -7,11 +7,10 @@ import { CountdownConfig } from 'ngx-countdown';
   templateUrl: './maze-game.component.html',
   styleUrls: ['./maze-game.component.css']
 })
-export class MazeGame implements AfterViewInit {
+export class MazeGameComponent implements AfterViewInit {
 
   @ViewChild('gameContentRef', {static: false}) gameContentRef: any;
   @ViewChild('gameInfoRef', {static: false}) gameInfoRef: any;
-  @Output() spaceInvadersGame = new EventEmitter();
 
   private gameContentCX!: CanvasRenderingContext2D;
   private gameContent: Board | undefined;
@@ -67,15 +66,15 @@ export class MazeGame implements AfterViewInit {
         [0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1],
         [0, 1, 0, 1, 1, 1, 1, 1, 2, 1, 0, 0, 1, 0, 0, 0],
         [0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 1, 1, 0, 1, 0],
-        [0, 0, 3, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0],
+        [0, 3, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0],
         [1, 0, 1, 1, 0, 1, 2, 1, 1, 1, 1, 1, 0, 1, 1, 4]
       ],
       [
         // Level 2
         [1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 0, 0, 4],
         [0, 0, 0, 0, 0, 5, 0, 2, 1, 0, 0, 1, 1, 0, 1, 0],
-        [0, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 2, 0, 3, 0],
-        [1, 0, 0, 0, 0, 3, 0, 0, 0, 0, 1, 0, 0, 1, 1, 1],
+        [0, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 3, 0],
+        [1, 0, 0, 0, 0, 3, 0, 0, 0, 0, 1, 2, 0, 1, 1, 1],
         [1, 1, 0, 1, 1, 0, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0],
         [1, 0, 0, 6, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 0, 1],
         [1, 0, 3, 0, 1, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0],
@@ -91,7 +90,7 @@ export class MazeGame implements AfterViewInit {
         [0, 0, 3, 0, 0, 0, 0, -1, 1, 2, 0, 0, 1, 0, 3, 0],
         [0, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1],
         [0, 1, 0, 0, 5, 2, 1, 1, 0, 2, 1, 0, 0, 3, 0, 0],
-        [0, 0, 0, 0, 0, 1, 1, 1, 0, 2, 1, 0, 1, 0, 1, 0],
+        [0, 0, 0, 0, 0, 1, 1, 1, 0, 2, 1, 0, 1, 0, 1, 2],
         [1, 0, 0, 0, 5, 2, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1],
         [1, 3, 0, 0, 1, 1, 1, 0, 2, 1, 0, 0, 1, 0, 0, 0],
         [1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 4, 1]
@@ -135,21 +134,17 @@ export class MazeGame implements AfterViewInit {
     }
 
   @HostListener('document:click', ['$event']) onClick = (e: any) => {
-    if(this.isInside(e, this.button1) && this.gameLost) {
-      this.playAgain();
-    } else if(this.isInside(e, this.button2) && this.wonGame) {
+    if(this.isInside(e, this.button1) && (this.gameLost || this.wonGame)) {
       this.playAgain();
     } else if (this.isInside(e, this.button1) && this.answeringQuestion) {
       this.checkAnswer(0)
     } else if (this.isInside(e, this.button2) && this.answeringQuestion) {
       this.checkAnswer(1);
-    } else if (this.isInside(e, this.button1) && (this.wonGame || this.gameOver)) {
-      this.spaceInvadersGame.emit();
     }
   }
 
   private checkAnswer(answerClicked: number): void {
-    if(this.arrayQuestions[this.currentMaze][this.currentIndexQuestion].correctAnswer === answerClicked) this.score = this.score + 20;
+    if(this.arrayQuestions[this.currentMaze][this.currentIndexQuestion].correctAnswer === answerClicked || (this.currentMaze === 0 && this.currentIndexQuestion === 4)) this.score = this.score + 20;
     this.arrayQuestions[this.currentMaze][this.currentIndexQuestion].answered = true;
     this.drawInfoText();
     this.answeringQuestion = false;
@@ -199,7 +194,7 @@ export class MazeGame implements AfterViewInit {
         {question: "When did civil Spanish war end?", answers: ['1939', '1938'], correctAnswer: 0, answered: false}
       ],
       [
-        {question: "What's the continent with best quality life", answers: ['Europe', 'Australia'], correctAnswer: 0, answered: false}, 
+        {question: "What's the continent with best quality life", answers: ['Europe', 'Asia'], correctAnswer: 0, answered: false}, 
         {question: "When did humans walk on the moon for the first time?", answers: ['1969', '1965'], correctAnswer: 0, answered: false},
         {question: "What was the first Disney film", answers: ['Mickey Mouse', 'Snow White'], correctAnswer: 1, answered: false},
         {question: "Where did Ping-Pong start?", answers: ['United Kingdom', 'Australia'], correctAnswer: 0, answered: false},
@@ -225,6 +220,7 @@ export class MazeGame implements AfterViewInit {
     if(this.currentMaze != 0 && this.arrayMaze[this.currentMaze][y][x] === -2 && this.arrayMaze[this.currentMaze][y + nextIndexY][x + nextIndexX] === 5) {
       this.arrayMaze[this.currentMaze][y + nextIndexY][x + nextIndexX] = -1;
       this.arrayMaze[this.currentMaze][y][x] = 0;
+    // Player hits enemy or fire
     } else if(this.checkEnemyCollision(y, x, nextIndexY, nextIndexX, 3) || this.checkEnemyCollision(y, x, nextIndexY, nextIndexX, 5)) {
       return false;
     // Player hits treasure
@@ -234,8 +230,15 @@ export class MazeGame implements AfterViewInit {
       this.arrayMaze[this.currentMaze][y + nextIndexY][x + nextIndexX] = -1;
       this.arrayMaze[this.currentMaze][y][x] = 0;
 
-    // Player hits enemy
+    // Player hits exit
     } else if(this.arrayMaze[this.currentMaze][y + nextIndexY][x + nextIndexX] === 4) {
+      let numAnswered = 0;
+      this.arrayQuestions[this.currentMaze].forEach((question: any) => {
+        if(question.answered) numAnswered++;
+      })
+
+      if(numAnswered < this.arrayQuestions[this.currentMaze].length) return false;
+      this.lives = 3;
       if(this.currentMaze < this.arrayMaze.length-1) {
         this.currentMaze++;
         this.drawInfoText();
@@ -261,6 +264,7 @@ export class MazeGame implements AfterViewInit {
     this.arrayMaze[this.currentMaze][y][x] = 0;
     this.arrayMaze[this.currentMaze][y][newX] = 3;
   }
+
   private checkEnemyCollision(y: number, x: number, nextIndexY: number, nextIndexX: number, objectToCheck: number): boolean {
     if((this.arrayMaze[this.currentMaze][y + nextIndexY][x + nextIndexX] === objectToCheck) && this.arrayMaze[this.currentMaze]) {
       if(this.lives > 0) {
@@ -302,14 +306,12 @@ export class MazeGame implements AfterViewInit {
   private drawGameOverScreen(): void {
     this.clearGameContent();
     this.drawTitleMenuScreen('40px', 'Game over');
-    this.drawButtonMenuScreen('40px', this.button1, 'Next game', this.gameContentEl.height/2.65, this.gameContentEl.height/2, 100);
   }
 
   private drawWonGameScreen(): void {
     this.clearGameContent();
     this.drawTitleMenuScreen('60px', 'You won!');
-    this.drawButtonMenuScreen('40px', this.button1, 'Next game', this.gameContentEl.height/2.65, this.gameContentEl.height/2, 100);
-    this.drawButtonMenuScreen('40px', this.button2, 'Play again', this.gameContentEl.height/1.4, this.gameContentEl.height/1.2, 100);
+    this.drawButtonMenuScreen('40px', this.button1, 'Play again', this.gameContentEl.height/2.65, this.gameContentEl.height/2, 100);
   }
 
   private drawQuizzScreen(): void {
@@ -413,6 +415,7 @@ export class MazeGame implements AfterViewInit {
 
   private drawMaze(): void { //Loop mazeArray and print a square with certain color depending on what kind of value
     const cs = this.characterSpriteSh;
+    
     for (var y = 0; y < this.arrayMaze[this.currentMaze].length; y++) {
       for (var x = 0; x < this.arrayMaze[this.currentMaze][y].length; x++) {
         if (this.arrayMaze[this.currentMaze][y][x] === -1) {
